@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AED Expense Calculator</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap">
+<style>
+:root{--bg:#EEF3F4;--card:#FFFFFF;--ink:#0E2A33;--mute:#5B7480;--line:#D5E0E3;--accent:#0B6E8A;--bad:#C0392B;--good:#12805C;--field:#F6F9FA;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B1A20;--card:#122830;--ink:#E6F0F2;--mute:#8FA9B3;--line:#24424C;--accent:#4FB8D6;--bad:#FF7A6B;--good:#4CC9A0;--field:#0E2128}}
+:root[data-theme="dark"]{--bg:#0B1A20;--card:#122830;--ink:#E6F0F2;--mute:#8FA9B3;--line:#24424C;--accent:#4FB8D6;--bad:#FF7A6B;--good:#4CC9A0;--field:#0E2128}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 48px}
+h1{font:600 20px/1.2 "IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;margin:0 0 16px;letter-spacing:.2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+.hero .lbl{color:var(--mute);font-size:14px}
+.big{font:600 clamp(40px,10vw,64px)/1.05 "IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;font-variant-numeric:tabular-nums;margin:2px 0 14px}
+.big small{font-size:.38em;font-weight:500;color:var(--mute);margin-right:8px}
+.big.neg{color:var(--bad)}
+.bar{display:flex;height:16px;border-radius:8px;overflow:hidden;background:var(--field);border:1px solid var(--line)}
+.bar i{display:block;height:100%}
+.legend{list-style:none;margin:14px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px 18px}
+.legend li{display:flex;align-items:center;gap:8px;font-size:14px}
+.legend b{width:10px;height:10px;border-radius:3px;flex:none}
+.legend span:nth-child(3){margin-left:auto;font-variant-numeric:tabular-nums}
+.legend em{font-style:normal;color:var(--mute);min-width:38px;text-align:right;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.stats div span{display:block;color:var(--mute);font-size:13px}
+.stats div strong{font:600 18px "IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;font-variant-numeric:tabular-nums}
+h2{font:600 16px/1.2 "IBM Plex Sans",sans-serif;margin:0 0 12px}
+label{display:block;font-size:13px;color:var(--mute);margin-bottom:4px}
+input,select{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:9px 10px;min-height:42px}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.inc{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1.1fr) minmax(0,1fr) minmax(0,.9fr) 40px;gap:8px;align-items:center;margin-bottom:8px}
+.head{color:var(--mute);font-size:13px;margin-bottom:6px}
+.del{min-height:42px;border:1px solid var(--line);background:none;color:var(--mute);border-radius:8px;font-size:18px;cursor:pointer}
+.del:hover{color:var(--bad);border-color:var(--bad)}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.btn{font:500 14px "IBM Plex Sans",sans-serif;padding:10px 14px;min-height:42px;border-radius:8px;border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.pri{color:#06232C}}
+.goal{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:12px}
+.gbar{height:14px;border-radius:7px;background:var(--field);border:1px solid var(--line);overflow:hidden;margin:16px 0 8px}
+.gbar i{display:block;height:100%;background:var(--good);width:0}
+.gtxt{display:flex;justify-content:space-between;gap:10px;font-size:14px;font-variant-numeric:tabular-nums}
+.gout{margin:10px 0 0;padding:0;list-style:none;font-size:14px;display:grid;gap:4px}
+.gout .bad{color:var(--bad)}.gout .good{color:var(--good)}
+@media (max-width:640px){.goal{grid-template-columns:1fr 1fr}.goal div:first-child{grid-column:1/-1}}
+.note{color:var(--mute);font-size:13px;margin:12px 0 0}
+.catname{margin:16px 0 8px;font-size:13px;color:var(--mute)}
+@media (max-width:640px){
+.head{display:none}
+.row{grid-template-columns:1fr 1fr 40px;grid-template-areas:"n n d" "c a a" "f f f";padding:10px 0;border-bottom:1px solid var(--line)}
+.row .n{grid-area:n}.row .c{grid-area:c}.row .a{grid-area:a}.row .f{grid-area:f}.row .del{grid-area:d}
+.stats{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<main>
+<h1>AED expense calculator</h1>
+
+<section class="card hero" aria-live="polite">
+  <div class="lbl" id="leftLbl">Left each month</div>
+  <div class="big" id="left"><small>AED</small>0</div>
+  <div class="bar" id="bar" role="img" aria-label="Spending by category as a share of income"></div>
+  <ul class="legend" id="legend"></ul>
+  <div class="stats">
+    <div><span>Income</span><strong id="sInc">0</strong></div>
+    <div><span>Spending</span><strong id="sSpend">0</strong></div>
+    <div><span>Savings rate</span><strong id="sRate">0%</strong></div>
+    <div><span>Per year (spending)</span><strong id="sYear">0</strong></div>
+    <div><span>Per week (spending)</span><strong id="sWeek">0</strong></div>
+    <div><span>Biggest category</span><strong id="sTop">-</strong></div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Monthly income</h2>
+  <div class="inc">
+    <div><label for="inc1">Salary and allowances (AED)</label><input id="inc1" type="number" inputmode="decimal" min="0" step="any"></div>
+    <div><label for="inc2">Other income (AED)</label><input id="inc2" type="number" inputmode="decimal" min="0" step="any"></div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Savings goal</h2>
+  <div class="goal">
+    <div><label for="gName">Goal</label><input id="gName" placeholder="e.g. Emergency fund"></div>
+    <div><label for="gTarget">Target (AED)</label><input id="gTarget" type="number" inputmode="decimal" min="0" step="any"></div>
+    <div><label for="gSaved">Saved so far (AED)</label><input id="gSaved" type="number" inputmode="decimal" min="0" step="any"></div>
+    <div><label for="gDate">Target date (optional)</label><input id="gDate" type="date"></div>
+  </div>
+  <div class="gbar" role="progressbar" aria-label="Goal progress" aria-valuemin="0" aria-valuemax="100"><i id="gFill"></i></div>
+  <div class="gtxt"><span id="gPct">0%</span><span id="gRem"></span></div>
+  <ul class="gout" id="gOut"></ul>
+</section>
+
+<section class="card">
+  <h2>Expenses</h2>
+  <div class="row head"><span>Item</span><span>Category</span><span>Amount (AED)</span><span>How often</span><span></span></div>
+  <div id="rows"></div>
+  <div class="btns">
+    <button class="btn pri" id="add" type="button">Add expense</button>
+    <button class="btn" id="clear" type="button">Clear amounts</button>
+    <button class="btn" id="reset" type="button">Reset to sample</button>
+  </div>
+  <p class="note">Weekly, quarterly and yearly items are converted to a monthly figure. Your entries are saved in this browser only.</p>
+</section>
+</main>
+
+<script>
+var CATS=["Housing","Bills","Transport","Food","Family","Health","Lifestyle","Debt & savings"];
+var FREQ={m:["Monthly",1],w:["Weekly",52/12],q:["Quarterly",1/3],y:["Yearly",1/12]};
+var KEY="aed-expense-calc-v1";
+function sample(){return {inc1:15000,inc2:0,goal:{name:"Emergency fund",target:50000,saved:10000,date:""},rows:[
+["Rent","Housing",6000,"m"],["DEWA (electricity and water)","Bills",450,"m"],["Internet and TV","Bills",400,"m"],["Mobile plan","Bills",150,"m"],
+["Fuel","Transport",500,"m"],["Salik","Transport",100,"m"],["Car installment","Transport",1200,"m"],["Car insurance","Transport",3000,"y"],
+["Groceries","Food",350,"w"],["Dining out","Food",600,"m"],["Health insurance","Health",300,"m"],["Gym","Lifestyle",250,"m"],
+["Subscriptions","Lifestyle",80,"m"],["Savings transfer","Debt & savings",1500,"m"]
+].map(function(r,i){return {id:i+1,name:r[0],cat:r[1],amt:r[2],freq:r[3]}})}}
+var S;
+try{var raw=localStorage.getItem(KEY);S=raw?JSON.parse(raw):null}catch(e){S=null}
+if(!S||!Array.isArray(S.rows))S=sample();
+if(!S.goal)S.goal={name:"",target:0,saved:0,date:""};
+var nextId=S.rows.reduce(function(m,r){return Math.max(m,r.id)},0)+1;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function $(id){return document.getElementById(id)}
+function num(v){var n=parseFloat(v);return isFinite(n)?n:0}
+function f(n){return Math.round(n*100)/100===Math.round(n)?Math.round(n).toLocaleString("en-US"):n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function aed(n){return "AED "+f(n)}
+function color(i){return "hsl("+((195+i*41)%360)+" 55% 46%)"}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")}
+function opts(list,sel,isObj){return list.map(function(o){var v=isObj?o[0]:o,l=isObj?o[1]:o;return '<option value="'+esc(v)+'"'+(v===sel?" selected":"")+'>'+esc(l)+'</option>'}).join("")}
+var freqList=Object.keys(FREQ).map(function(k){return [k,FREQ[k][0]]});
+
+function renderRows(){
+  $("rows").innerHTML=S.rows.map(function(r){
+    return '<div class="row" data-id="'+r.id+'">'+
+    '<input class="n" data-k="name" aria-label="Item name" value="'+esc(r.name)+'" placeholder="Item">'+
+    '<select class="c" data-k="cat" aria-label="Category">'+opts(CATS,r.cat)+'</select>'+
+    '<input class="a" data-k="amt" type="number" inputmode="decimal" min="0" step="any" aria-label="Amount in AED" value="'+(r.amt||"")+'" placeholder="0">'+
+    '<select class="f" data-k="freq" aria-label="How often">'+opts(freqList,r.freq,true)+'</select>'+
+    '<button class="del" type="button" aria-label="Remove '+esc(r.name||"item")+'">&times;</button></div>'}).join("");
+}
+function goalCalc(left){
+  var g=S.goal,t=num(g.target),sv=num(g.saved),rem=Math.max(t-sv,0),out=[];
+  var pct=t>0?Math.min(100,sv/t*100):0;
+  $("gFill").style.width=pct+"%";$("gPct").textContent=(g.name?g.name+": ":"")+Math.round(pct)+"%";
+  $("gRem").textContent=t>0?aed(rem)+" to go":"";
+  document.querySelector(".gbar").setAttribute("aria-valuenow",Math.round(pct));
+  if(t>0){
+    if(rem===0)out.push('<li class="good">Goal reached.</li>');
+    else{
+      if(left>0){var m=Math.ceil(rem/left),d=new Date();d.setMonth(d.getMonth()+m);
+        out.push("<li>At "+aed(left)+" a month, you reach it in "+m+" month"+(m>1?"s":"")+" ("+d.toLocaleDateString("en-GB",{month:"short",year:"numeric"})+").</li>")}
+      else out.push('<li class="bad">No monthly surplus right now, so this goal is not moving. Cut expenses or raise income.</li>');
+      if(g.date){var days=(new Date(g.date)-new Date())/864e5,mo=Math.max(1,Math.ceil(days/30.44)),need=rem/mo;
+        if(days<0)out.push('<li class="bad">The target date has passed.</li>');
+        else{out.push("<li>To hit your date, save "+aed(need)+" a month.</li>");
+          out.push(left>=need?'<li class="good">You are on track.</li>':'<li class="bad">Short by '+aed(need-Math.max(left,0))+" a month.</li>")}}
+    }
+  }
+  $("gOut").innerHTML=out.join("");
+}
+function calc(){
+  var inc=num(S.inc1)+num(S.inc2),tot={},spend=0;
+  CATS.forEach(function(c){tot[c]=0});
+  S.rows.forEach(function(r){var m=num(r.amt)*FREQ[r.freq][1];tot[r.cat]=(tot[r.cat]||0)+m;spend+=m});
+  var left=inc-spend,base=Math.max(inc,spend,1);
+  var el=$("left");el.className="big"+(left<0?" neg":"");
+  el.innerHTML="<small>AED</small>"+(left<0?"-":"")+f(Math.abs(left));
+  $("leftLbl").textContent=left<0?"Over budget each month":"Left each month";
+  var order=CATS.map(function(c,i){return {c:c,v:tot[c],i:i}}).filter(function(x){return x.v>0}).sort(function(a,b){return b.v-a.v});
+  $("bar").innerHTML=order.map(function(x){return '<i style="width:'+(x.v/base*100)+'%;background:'+color(x.i)+'" title="'+x.c+'"></i>'}).join("");
+  $("legend").innerHTML=order.map(function(x){return '<li><b style="background:'+color(x.i)+'"></b><span>'+esc(x.c)+'</span><span>'+f(x.v)+'</span><em>'+(inc>0?Math.round(x.v/inc*100)+"%":"-")+'</em></li>'}).join("")||'<li>Add an amount to see where it goes.</li>';
+  $("sInc").textContent=aed(inc);$("sSpend").textContent=aed(spend);
+  $("sRate").textContent=inc>0?Math.round(left/inc*100)+"%":"-";
+  $("sYear").textContent=aed(spend*12);$("sWeek").textContent=aed(spend*12/52);
+  $("sTop").textContent=order.length?order[0].c:"-";
+  goalCalc(left);
+}
+function upd(){save();calc()}
+
+$("inc1").value=S.inc1||"";$("inc2").value=S.inc2||"";
+$("inc1").addEventListener("input",function(e){S.inc1=num(e.target.value);upd()});
+$("inc2").addEventListener("input",function(e){S.inc2=num(e.target.value);upd()});
+function bindGoal(){
+  $("gName").value=S.goal.name||"";$("gTarget").value=S.goal.target||"";$("gSaved").value=S.goal.saved||"";$("gDate").value=S.goal.date||"";
+}
+bindGoal();
+[["gName","name"],["gTarget","target"],["gSaved","saved"],["gDate","date"]].forEach(function(p){
+  $(p[0]).addEventListener("input",function(e){var v=e.target.value;S.goal[p[1]]=(p[1]==="target"||p[1]==="saved")?num(v):v;upd()});
+});
+function onChange(e){
+  var row=e.target.closest(".row");if(!row||!e.target.dataset.k)return;
+  var r=S.rows.filter(function(x){return x.id==row.dataset.id})[0];if(!r)return;
+  var k=e.target.dataset.k;r[k]=k==="amt"?num(e.target.value):e.target.value;upd();
+}
+$("rows").addEventListener("input",onChange);
+$("rows").addEventListener("change",onChange);
+$("rows").addEventListener("click",function(e){
+  var b=e.target.closest(".del");if(!b)return;
+  var id=b.closest(".row").dataset.id;S.rows=S.rows.filter(function(x){return x.id!=id});renderRows();upd();
+});
+$("add").addEventListener("click",function(){
+  S.rows.push({id:nextId++,name:"",cat:"Bills",amt:0,freq:"m"});renderRows();upd();
+  var ins=$("rows").querySelectorAll(".n");ins[ins.length-1].focus();
+});
+$("clear").addEventListener("click",function(){S.rows.forEach(function(r){r.amt=0});renderRows();upd()});
+$("reset").addEventListener("click",function(){
+  S=sample();nextId=S.rows.length+1;$("inc1").value=S.inc1;$("inc2").value="";bindGoal();renderRows();upd();
+});
+renderRows();calc();
+</script>
+</body>
+</html>
